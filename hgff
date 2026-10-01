@@ -1,0 +1,9 @@
+body{margin:0;background:#111;color:#fff;font-family:Arial;padding:16px} main{max-width:900px;margin:auto} input,button{width:100%;padding:13px;margin:6px 0;box-sizing:border-box;border-radius:8px;font-size:16px} input{background:#222;color:#fff;border:1px solid #555} button{background:#1976d2;color:white;border:0} video{width:100%;margin:12px 0;background:#000} .channel{background:#222;padding:13px;margin:7px 0;border-radius:8px;cursor:pointer} #status{text-align:center;color:#aaa;margin:10px} 
+
+📺 مشغل M3U
+
+تحميل القائمة 
+
+الصق رابط M3U ثم اضغط تحميل القائمة
+
+const video=document.getElementById('video'), box=document.getElementById('channels'), status=document.getElementById('status'); let hls=null; async function loadM3U(){ const url=document.getElementById('url').value.trim(); if(!url)return; status.textContent='جاري تحميل القائمة...'; box.innerHTML=''; try{ const r=await fetch(url); if(!r.ok)throw Error(r.status); const lines=(await r.text()).split(/\r?\n/); let info=null, count=0; for(const line0 of lines){ const line=line0.trim(); if(line.startsWith('#EXTINF')){ const p=line.indexOf(','); info={name:p>=0?line.slice(p+1).trim():'قناة'}; }else if(line && !line.startsWith('#') && info){ const c=document.createElement('div'); c.className='channel'; c.textContent=info.name; const src=line; c.onclick=()=>play(src); box.appendChild(c); count++; info=null; } } status.textContent='تم تحميل '+count+' قناة'; }catch(e){status.textContent='تعذر تحميل القائمة. قد يمنع السيرفر CORS.';} } function play(src){ if(hls){hls.destroy();hls=null;} if(Hls.isSupported() && /m3u8/i.test(src)){ hls=new Hls(); hls.loadSource(src); hls.attachMedia(video); hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play().catch(()=>{})); }else{video.src=src;video.play().catch(()=>{});} } 
